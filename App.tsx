@@ -30,14 +30,7 @@ export default function App() {
         console.log('Background location tracking started successfully');
       } catch (locationError) {
         console.log('Background location tracking not available:', locationError);
-        // Try foreground tracking as fallback
-        try {
-          await locationService.startLocationTracking();
-          console.log('Foreground location tracking started successfully');
-        } catch (foregroundError) {
-          console.log('Location tracking not available:', foregroundError);
-          // Don't fail the app if location is not available
-        }
+        // Don't fail the app if location is not available
       }
       
       setIsReady(true);
