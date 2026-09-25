@@ -33,11 +33,7 @@ const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<DailyEntry | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<DailyEntry | null>(null);
-  const [locationDataSummary, setLocationDataSummary] = useState<{
-    todayCount: number;
-    totalStoredDays: number;
-    lastUpdated: string | null;
-  } | null>(null);
+
 
   const loadEntries = useCallback(async () => {
     try {
@@ -63,9 +59,7 @@ const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
       setTimelineEntries(timelineMap);
       setImageEntries(imageMap);
       
-      // Load location data summary
-      const summary = await locationService.getLocationDataSummary();
-      setLocationDataSummary(summary);
+
     } catch (error) {
       console.error('Error loading entries:', error);
       Alert.alert('Error', 'Failed to load entries');
@@ -242,77 +236,12 @@ const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
 
   const handleAddTimeline = async (entryId: number) => {
     try {
-      // Get the entry to check if it's for today
-      const entry = entries.find(e => e.id === entryId);
-      if (!entry) return;
-
-      const entryDate = new Date(entry.date);
-      const today = new Date();
-      const isToday = entryDate.toDateString() === today.toDateString();
-
-      if (isToday) {
-        // For today's entry, get all location history and add missing ones
-        const todayLocations = await locationService.getTodayLocationHistory();
-        const existingTimelines = timelineEntries.get(entryId) || [];
-        const existingLocationTimes = existingTimelines.map(t => t.timestamp);
-        
-        let addedCount = 0;
-        for (const location of todayLocations) {
-          if (!existingLocationTimes.includes(location.timestamp)) {
-            const locationName = await locationService.getLocationName(location.latitude, location.longitude);
-            
-            const timelineEntry: Omit<TimelineEntry, 'id'> = {
-              dailyEntryId: entryId,
-              locationName,
-              timestamp: location.timestamp,
-              latitude: location.latitude,
-              longitude: location.longitude,
-              icon: locationService.getLocationIcon(locationName),
-              order: existingTimelines.length + addedCount,
-            };
-            
-            const timelineId = await databaseService.createTimelineEntry(timelineEntry);
-            const createdTimeline = { ...timelineEntry, id: timelineId };
-            
-            existingTimelines.push(createdTimeline);
-            addedCount++;
-          }
-        }
-        
-        if (addedCount > 0) {
-          setTimelineEntries(prev => {
-            const newMap = new Map(prev);
-            newMap.set(entryId, existingTimelines);
-            return newMap;
-          });
-          
-          Alert.alert('Timeline Updated', `Added ${addedCount} new location stops to your timeline.`);
-        } else {
-          Alert.alert('No New Locations', 'No new location data available since your last update.');
-        }
-      } else {
-        // For past entries, add current location
-        const timelineEntry = await locationService.createTimelineEntryFromLocation(entryId);
-        const existingTimelines = timelineEntries.get(entryId) || [];
-        const newOrder = existingTimelines.length;
-        
-        const newTimelineEntry = {
-          ...timelineEntry,
-          order: newOrder,
-        };
-
-        const timelineId = await databaseService.createTimelineEntry(newTimelineEntry);
-        const createdTimeline = { ...newTimelineEntry, id: timelineId };
-
-        setTimelineEntries(prev => {
-          const newMap = new Map(prev);
-          newMap.set(entryId, [...(newMap.get(entryId) || []), createdTimeline]);
-          return newMap;
-        });
-      }
+      // For manual mode, we'll navigate to the LocationHistoryModal to add manual entries
+      // This will be handled by the modal component
+      console.log('Manual timeline entry mode - use LocationHistoryModal to add entries');
     } catch (error) {
       console.error('Error adding timeline entry:', error);
-      Alert.alert('Error', 'Failed to add timeline entry. Please check location permissions.');
+      Alert.alert('Error', 'Failed to add timeline entry.');
     }
   };
 
@@ -473,17 +402,12 @@ const FeedScreen: React.FC<FeedScreenProps> = ({ navigation }) => {
       </View>
 
       {/* Location Data Status */}
-      {locationDataSummary && (
-        <View style={styles.locationStatus}>
-          <Ionicons name="location" size={16} color="#007AFF" />
-          <Text style={styles.locationStatusText}>
-            {locationDataSummary.todayCount > 0 
-              ? `${locationDataSummary.todayCount} location stops tracked today`
-              : 'No location data for today yet'
-            }
-          </Text>
-        </View>
-      )}
+      <View style={styles.locationStatus}>
+        <Ionicons name="location" size={16} color="#666" />
+        <Text style={styles.locationStatusText}>
+          Manual timeline entry mode - add locations manually
+        </Text>
+      </View>
 
       <FlatList
         data={entries}

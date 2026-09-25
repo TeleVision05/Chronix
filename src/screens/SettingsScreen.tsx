@@ -253,6 +253,8 @@ For historical data, you can manually add location data using the addExternalLoc
     );
   };
 
+
+
   const formatTime = (timeString: string) => {
     const [hour, minute] = timeString.split(':').map(Number);
     const date = new Date();
@@ -383,6 +385,8 @@ For historical data, you can manually add location data using the addExternalLoc
           </TouchableOpacity>
         </View>
 
+
+
         {/* Debug Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Debug</Text>
@@ -468,6 +472,8 @@ For historical data, you can manually add location data using the addExternalLoc
           </View>
         </View>
       </Modal>
+
+
     </SafeAreaView>
   );
 };

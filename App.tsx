@@ -24,14 +24,8 @@ export default function App() {
       // Initialize notification service
       await notificationService.initialize();
       
-      // Start background location tracking for timeline data
-      try {
-        await locationService.startBackgroundLocationTracking();
-        console.log('Background location tracking started successfully');
-      } catch (locationError) {
-        console.log('Background location tracking not available:', locationError);
-        // Don't fail the app if location is not available
-      }
+      // Initialize location service (Life360 only mode)
+      await locationService.initialize();
       
       setIsReady(true);
     } catch (err) {
