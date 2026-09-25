@@ -1,10 +1,10 @@
 # Chronix Setup Guide
 
-## Google Places API Setup
+## Google Maps Platform key
 
-To enable place search functionality in the app, you need to set up a Google Places API key:
+Place search, place details and the Google geocoding fallback need a Google Maps Platform key.
 
-### 1. Get a Google Places API Key
+### 1. Get a key
 
 1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select an existing one
@@ -12,69 +12,72 @@ To enable place search functionality in the app, you need to set up a Google Pla
    - Places API
    - Geocoding API
 4. Create credentials (API Key)
-5. Restrict the API key to your app's bundle identifier for security
+5. Restrict the key to this app's Android package (`com.therune.Chronix`) and iOS bundle id,
+   and to the two APIs above. Expo inlines `EXPO_PUBLIC_*` variables into the JS bundle, so
+   the restriction is what protects the key, not secrecy.
 
-### 2. Update the API Key
+### 2. Put it in `.env`
 
-In `src/services/LocationService.ts`, replace `'YOUR_GOOGLE_PLACES_API_KEY'` with your actual API key:
-
-```typescript
-const apiKey = 'your-actual-api-key-here';
+```bash
+cp .env.example .env
+# then edit .env:
+EXPO_PUBLIC_GOOGLE_MAPS_KEY=your-key-here
 ```
 
-### 3. Features Enabled
+`.env` is git-ignored. `src/config/googleMaps.ts` reads the variable and warns at startup when
+it is empty. Restart `npm start` after changing `.env`; Expo reads it at bundle time.
 
-With the API key configured, you'll have access to:
+### 3. Features enabled
 
-- **Place Search**: When editing timeline entries, you can search for real places
-- **Autocomplete**: Suggestions appear as you type
-- **Geocoding**: Proper coordinates for map display
-- **Place Details**: Accurate place names and addresses
+- **Place Search**: when editing timeline entries, search for real places
+- **Autocomplete**: suggestions appear as you type
+- **Geocoding**: proper coordinates for map display
+- **Place Details**: accurate place names and addresses
 
-## Background Location Tracking
+## Background location tracking
 
-The app now supports background location tracking with the following features:
+- **Automatic tracking**: location is tracked even when the app is closed
+- **Battery aware**: updates every 5 minutes or when you move 100 meters
+  (`timeInterval: 300000`, `distanceInterval: 100` in `LocationService.ts`)
+- **Privacy**: data is stored locally on your device
+- **Timeline integration**: a stop is recorded after 5 minutes stationary at a new address
 
-- **Automatic Tracking**: Location is tracked even when the app is closed
-- **Battery Optimized**: Updates every 5 minutes or when you move 500 meters
-- **Privacy Focused**: Data is stored locally on your device
-- **Timeline Integration**: Location data automatically populates your daily timeline
+### Permissions required
 
-### Permissions Required
+- **Location permission**: to track your location
+- **Background location**: to continue tracking when the app is not active
 
-The app will request:
-- **Location Permission**: To track your location
-- **Background Location**: To continue tracking when the app is not active
+Background location requires a development or production build; it does not run in Expo Go.
 
 ## Usage
 
-1. **Download the app** and grant location permissions
-2. **Background tracking starts automatically** when you first open the app
-3. **Create a new entry** and tap "Edit Timeline" to see your location history
-4. **Edit locations** by tapping the pencil icon and searching for places
-5. **Reorder or delete** timeline entries as needed
-6. **Save your entry** with the customized timeline
+1. Install the app and grant location permissions
+2. Background tracking starts automatically when you first open the app
+3. Create a new entry and tap "Edit Timeline" to see your location history
+4. Edit locations by tapping the pencil icon and searching for places
+5. Reorder or delete timeline entries as needed
+6. Save your entry with the customized timeline
 
 ## Privacy
 
 - All location data is stored locally on your device
-- No location data is sent to external servers (except for place search)
+- No location data is sent to external servers (except place search / geocoding to Google)
 - You can disable location tracking in your device settings
-- Background tracking can be stopped in the app settings
+- Location data can be cleared from the in-app Settings screen
 
 ## Troubleshooting
 
-### Location Not Working
+### Location not working
 - Check that location permissions are granted
 - Ensure location services are enabled on your device
 - Try restarting the app
 
-### Place Search Not Working
-- Verify your Google Places API key is correctly set
+### Place search not working
+- Verify `EXPO_PUBLIC_GOOGLE_MAPS_KEY` is set in `.env` and Metro was restarted
 - Check that the Places API is enabled in Google Cloud Console
 - Ensure you have an active internet connection
 
-### Background Tracking Issues
-- On iOS: Go to Settings > Privacy > Location Services > Chronix > Always
-- On Android: Go to Settings > Apps > Chronix > Permissions > Location > Allow all the time
-- Some devices may have additional battery optimization settings that need to be disabled
+### Background tracking issues
+- On iOS: Settings > Privacy > Location Services > Chronix > Always
+- On Android: Settings > Apps > Chronix > Permissions > Location > Allow all the time
+- Some devices have additional battery optimization settings that need to be disabled

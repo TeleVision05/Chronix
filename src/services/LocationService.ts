@@ -1,5 +1,6 @@
 import * as Location from 'expo-location';
 import { TimelineEntry } from './DatabaseService';
+import { GOOGLE_MAPS_KEY } from '../config/googleMaps';
 
 export interface LocationData {
   latitude: number;
@@ -130,7 +131,7 @@ class LocationService {
       
       // Fallback: Use Google Geocoding API if available
       try {
-        const apiKey = 'AIzaSyDpPWBTMeLogmz5ZmwlPDXu1Fs1RTQJeuA'; // User provided API key
+        const apiKey = GOOGLE_MAPS_KEY;
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
         );
@@ -435,7 +436,7 @@ class LocationService {
   // Place search functionality for manual timeline editing
   async searchPlaces(query: string): Promise<PlaceSearchResult[]> {
     try {
-      const apiKey = 'AIzaSyDpPWBTMeLogmz5ZmwlPDXu1Fs1RTQJeuA';
+      const apiKey = GOOGLE_MAPS_KEY;
       
       // Use Places Autocomplete with more comprehensive types
       const response = await fetch(
@@ -487,7 +488,7 @@ class LocationService {
     longitude: number;
   } | null> {
     try {
-      const apiKey = 'AIzaSyDpPWBTMeLogmz5ZmwlPDXu1Fs1RTQJeuA';
+      const apiKey = GOOGLE_MAPS_KEY;
       
       // For places API results
       const response = await fetch(

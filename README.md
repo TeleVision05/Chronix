@@ -1,200 +1,82 @@
-# Chronix - Daily Life Timeline App
+# Chronix
 
-Chronix is a comprehensive daily life tracking app that automatically records your location throughout the day and allows you to create rich timeline entries with photos and place information.
+A personal daily-timeline app for iOS and Android (Expo SDK 53, React Native 0.79, TypeScript).
+It tracks your location in the background, turns stops into a daily timeline, lets you correct
+stops with Google Places search, and attaches photos to each day. Everything is stored on the
+device (SQLite + AsyncStorage); the only network call is to Google for place search/geocoding.
 
-## 🌟 Features
+**Status: experimental.** Typecheck and unit tests pass; the app has not been re-verified on a
+device since commit `5bfffb6`. An alternative "manual entry only" design lives on branch
+`wip/manual-location-mode`. See [ROADMAP.md](./ROADMAP.md) for what is decided and what is not.
 
-### 📍 **Automatic Location Tracking**
-- **Background tracking** - Works even when app is closed
-- **Battery optimized** - Updates every 5 minutes or when you move 500 meters
-- **Privacy focused** - All data stored locally on your device
-- **Smart clustering** - Groups nearby locations to create meaningful timeline entries
+## Install
 
-### 📝 **Daily Timeline Creation**
-- **Location history integration** - Automatically loads your day's location data
-- **Place search & editing** - Search for real places with Google Places API
-- **Timeline customization** - Reorder, edit, or delete location entries
-- **Rich place information** - Proper coordinates for map display
+Requires Node >= 22.18 (the tests use Node's native TypeScript stripping) and either Xcode or
+Android Studio. Background location does not work in Expo Go; use a dev-client build.
 
-### 📸 **Photo Integration**
-- **Camera integration** - Take photos directly in the app
-- **Gallery selection** - Choose from your photo library
-- **Image gallery** - View photos in a beautiful grid layout
-- **Full-screen viewing** - Tap to view photos in detail
-
-### 🎨 **Beautiful UI/UX**
-- **Modern design** - Clean, intuitive interface
-- **Smooth animations** - Expandable timeline cards
-- **Responsive layout** - Works on all screen sizes
-- **Dark mode ready** - Consistent theming
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js (v16 or higher)
-- Expo CLI (`npm install -g @expo/cli`)
-- iOS Simulator or Android Emulator (or physical device)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Chronix
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up Google Places API** (see [SETUP.md](./SETUP.md))
-   - Get a Google Places API key
-   - Update `src/services/LocationService.ts` with your API key
-
-4. **Start the development server**
-   ```bash
-   npm start
-   ```
-
-5. **Run on device/simulator**
-   ```bash
-   # iOS
-   npm run ios
-   
-   # Android
-   npm run android
-   ```
-
-## 📱 How It Works
-
-### 1. **First Launch**
-- App requests location permissions
-- Background tracking starts automatically
-- Location data is stored locally with date-based organization
-
-### 2. **Daily Usage**
-- App tracks your location in the background
-- No user interaction required during the day
-- Data is clustered to avoid duplicate entries
-
-### 3. **Creating Entries**
-- Tap "+" to create a new daily entry
-- App automatically loads today's location history
-- Tap "Edit Timeline" to customize locations
-- Search for real places to improve accuracy
-- Add photos from camera or gallery
-
-### 4. **Viewing Your Timeline**
-- Expand timeline cards to see full details
-- View location history with timestamps
-- Browse photos in gallery view
-- Edit entries anytime
-
-## 🔧 Technical Architecture
-
-### **Services**
-- **LocationService** - Handles location tracking and place search
-- **DatabaseService** - SQLite database for local storage
-- **NotificationService** - Handles app notifications
-
-### **Components**
-- **FeedScreen** - Main timeline view
-- **AddEntryModal** - Entry creation with location history
-- **LocationHistoryModal** - Timeline editing with place search
-- **PhotoPickerScreen** - Camera and gallery integration
-- **DailyEntryCard** - Expandable timeline cards
-- **ImageGallery** - Photo viewing and management
-
-### **Data Flow**
-1. **Background tracking** → Location data stored in AsyncStorage
-2. **Entry creation** → Location history loaded and clustered
-3. **Timeline editing** → Place search and customization
-4. **Photo addition** → Images saved locally and linked to entries
-5. **Data persistence** → All data stored in SQLite database
-
-## 🛡️ Privacy & Security
-
-- **Local storage only** - No data sent to external servers
-- **Location permissions** - Only used for timeline creation
-- **Photo privacy** - Images stored locally on device
-- **API usage** - Google Places API only for place search
-
-## 🔍 Troubleshooting
-
-### Location Not Working
-- Check location permissions in device settings
-- Ensure location services are enabled
-- Restart the app if needed
-
-### Place Search Issues
-- Verify Google Places API key is set correctly
-- Check internet connection
-- Ensure API key has proper permissions
-
-### Photo Issues
-- Grant camera and photo library permissions
-- Check device storage space
-- Restart app if permissions were denied
-
-### Background Tracking
-- **iOS**: Settings > Privacy > Location Services > Chronix > Always
-- **Android**: Settings > Apps > Chronix > Permissions > Location > Allow all the time
-- Disable battery optimization for the app
-
-## 📋 Development
-
-### Project Structure
-```
-src/
-├── components/          # Reusable UI components
-├── screens/            # Main app screens
-├── services/           # Business logic and APIs
-├── navigation/         # Navigation configuration
-└── utils/             # Helper functions
-```
-
-### Key Dependencies
-- **expo-location** - Location tracking
-- **expo-sqlite** - Local database
-- **expo-image-picker** - Camera and gallery
-- **expo-task-manager** - Background tasks
-- **@react-navigation** - Navigation
-
-### Checks
 ```bash
-npm run typecheck   # tsc --noEmit
-npm test            # Node built-in test runner (needs Node >= 22.18 for .ts type stripping)
+git clone git@github.com:TeleVision05/Chronix.git
+cd Chronix
+npm install
 ```
-Unit tests live in `tests/` and cover pure logic only; location tracking, camera and
-notifications need a device (see [TESTING.md](./TESTING.md)).
 
-### Building for Production
-Builds use EAS (`eas.json`); the old `expo build:*` commands are retired.
+## Configure
+
+Copy [.env.example](./.env.example) to `.env` and set:
+
+| Variable | Purpose |
+|---|---|
+| `EXPO_PUBLIC_GOOGLE_MAPS_KEY` | Google Maps Platform key with Places API + Geocoding API enabled. Restrict it to the app's Android package `com.therune.Chronix` / iOS bundle id; Expo inlines `EXPO_PUBLIC_*` into the bundle. |
+
+Without it the app still runs; place search and Google geocoding return nothing and
+`src/config/googleMaps.ts` logs a warning. More detail in [SETUP.md](./SETUP.md).
+
+## Run
+
+```bash
+npm start          # Metro; press i / a for a simulator with a dev client installed
+npm run ios        # build and run the iOS dev client
+npm run android    # build and run the Android dev client (android/ is committed)
+```
+
+Production builds go through EAS (`eas.json`):
+
 ```bash
 npx eas build --platform ios --profile production
 npx eas build --platform android --profile production
 ```
 
-## 🤝 Contributing
+## Test
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+```bash
+npm run typecheck   # tsc --noEmit (strict)
+npm test            # node --test tests/*.test.mjs  (pure logic only)
+```
 
-## 📄 License
+Location tracking, camera and notifications need a device; [TESTING.md](./TESTING.md) is the
+manual checklist for those.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Layout
 
-## 🆘 Support
+```
+index.ts              registers the background location task, then the app
+App.tsx               boots DB, notifications, background tracking
+src/services/         LocationService, DatabaseService, NotificationService
+src/config/           googleMaps.ts (reads the env var)
+src/screens/          Feed, PhotoPicker, Settings
+src/components/       timeline cards, entry modals, image gallery
+src/utils/            dateUtils (unit-tested)
+tests/                node:test suites
+```
 
-For issues and questions:
-1. Check the troubleshooting section
-2. Review the SETUP.md file
-3. Open an issue on GitHub
+Tracking parameters (in `src/services/LocationService.ts`): update every 5 minutes or 100 m;
+a stop is recorded after 5 minutes stationary within 100 m at a new geocoded name.
 
----
+## Roadmap
 
-**Chronix** - Capture your daily journey, one location at a time. 📍✨
+[ROADMAP.md](./ROADMAP.md): first item is rotating the Google key that was hard-coded in the
+public history.
+
+## License
+
+MIT.

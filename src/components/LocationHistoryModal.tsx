@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LocationData, PlaceSearchResult, locationService } from '../services/LocationService';
+import { GOOGLE_MAPS_KEY } from '../config/googleMaps';
 import { TimelineEntry } from '../services/DatabaseService';
 import { formatTime } from '../utils/dateUtils';
 
@@ -181,7 +182,7 @@ const LocationHistoryModal: React.FC<LocationHistoryModalProps> = ({
         // Try to get coordinates using geocoding
         try {
           const geocodeResponse = await fetch(
-            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(locationName)}&key=AIzaSyDpPWBTMeLogmz5ZmwlPDXu1Fs1RTQJeuA`
+            `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(locationName)}&key=${GOOGLE_MAPS_KEY}`
           );
           const geocodeData = await geocodeResponse.json();
           
