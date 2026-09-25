@@ -65,10 +65,10 @@ const LocationHistoryModal: React.FC<LocationHistoryModalProps> = ({
         const editableEntries: EditableLocationEntry[] = existingEntries.map((entry, index) => ({
           id: entry.id,
           locationName: entry.locationName,
-          timestamp: entry.timestamp,
-          latitude: entry.latitude,
-          longitude: entry.longitude,
-          icon: entry.icon,
+          timestamp: entry.timestamp ?? date.toISOString(),
+          latitude: entry.latitude ?? 0,
+          longitude: entry.longitude ?? 0,
+          icon: entry.icon ?? locationService.getLocationIcon(entry.locationName),
           order: index,
         }));
         setEntries(editableEntries);

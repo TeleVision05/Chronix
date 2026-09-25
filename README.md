@@ -161,13 +161,19 @@ src/
 - **expo-task-manager** - Background tasks
 - **@react-navigation** - Navigation
 
-### Building for Production
+### Checks
 ```bash
-# Build for iOS
-expo build:ios
+npm run typecheck   # tsc --noEmit
+npm test            # Node built-in test runner (needs Node >= 22.18 for .ts type stripping)
+```
+Unit tests live in `tests/` and cover pure logic only; location tracking, camera and
+notifications need a device (see [TESTING.md](./TESTING.md)).
 
-# Build for Android
-expo build:android
+### Building for Production
+Builds use EAS (`eas.json`); the old `expo build:*` commands are retired.
+```bash
+npx eas build --platform ios --profile production
+npx eas build --platform android --profile production
 ```
 
 ## 🤝 Contributing

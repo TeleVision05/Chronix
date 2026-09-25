@@ -35,3 +35,14 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# env files
+.env
+.env.*
+!.env.example
+
+# native build outputs
+android/.gradle/
+android/app/build/
+android/build/
+ios/build/
